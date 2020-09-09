@@ -2,15 +2,22 @@ package com.example.fivecontacts.main.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.fivecontacts.R;
@@ -26,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 public class Pick_Contacts extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     TextView tv;
+    EditText edContato;
     Button btSalvar;
     User user;
     BottomNavigationView bnv;
@@ -38,6 +46,8 @@ public class Pick_Contacts extends AppCompatActivity implements BottomNavigation
         bnv = findViewById(R.id.bnv);
         bnv.setSelectedItemId(R.id.anvMudar);
         bnv.setOnNavigationItemSelectedListener(this);
+
+        edContato = findViewById(R.id.edtContato);
 
         //Dados da Intent Anterior
         Intent quemChamou=this.getIntent();
@@ -53,15 +63,36 @@ public class Pick_Contacts extends AppCompatActivity implements BottomNavigation
             }
         }
 
-       /* btSalvar = findViewById(R.id.btSalvar);
+    }
+    public void onClickBuscar(View v){
+    if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED){
+        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 3333);
+        return;
+    }
+    else{
+        ContentResolver cr =getContentResolver();
 
-        btSalvar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
+        String consulta = ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
+        String [] argumentosConsulta = {"%"+edContato.getText()+"%"};
+
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+
+        while (cursor.moveToNext()){
+            int indiceNome = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
+            String contatoNome = cursor.getString(indiceNome);
+
+            int indiceContactID = cursor.getColumnIndexOrThrow((ContactsContract.Contacts._ID));
+            String contactID = cursor.getString(indiceContactID);
+
+            String consultaPhone = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID;
+            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+
+
+            while (phones.moveToNext()){
+                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             }
-        });*/
-
+        }
+    }
     }
 
     public void cliquedoSalvar (View v) throws IOException {

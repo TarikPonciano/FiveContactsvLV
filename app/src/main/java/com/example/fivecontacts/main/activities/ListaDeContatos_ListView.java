@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +20,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.fivecontacts.R;
@@ -33,7 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class ListaDeContatos_ListView extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class ListaDeContatos_ListView extends AppCompatActivity implements UIEducacionalPermissao.NoticeDialogListener, BottomNavigationView.OnNavigationItemSelectedListener {
 
     ListView lv;
     String[] itens ={"Filha", "Filho", "Netinho"};
@@ -122,17 +124,20 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements Botto
 
                    // numeroLigar = contatos.get(i).getNumero();
                     Uri uri = Uri.parse (contatos.get(i).getNumero());
-                    Intent intent;
+
 
                    if (checarPermissaoPhone()){
-                       intent = new Intent(Intent.ACTION_CALL, uri);
+                       Intent intent = new Intent(Intent.ACTION_CALL, uri);
+                       startActivity(intent);
                    }
-                   else{ intent = new Intent(Intent.ACTION_DIAL, uri);}
+
+
+                   //else{ intent = new Intent(Intent.ACTION_DIAL, uri);}
 
 
                     // intent = new Intent(Intent.ACTION_CALL, uri);
 
-                    startActivity(intent);
+
 
                 }
             });
@@ -166,9 +171,49 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements Botto
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED){
             return true;
         }else{
-            String[] permissoes = {Manifest.permission.CALL_PHONE};
-            ActivityCompat.requestPermissions(this,permissoes,1212);
+            if (shouldShowRequestPermissionRationale(Manifest.permission.CALL_PHONE)){
+                String mensagem = "A aplicação requer acesso do telefone para discagem automática. A permissão será requisitada.";
+                String titulo = "Permissão de acesso a chamadas";
+                int codigo = 1;
+                UIEducacionalPermissao mensagemPermissao = new UIEducacionalPermissao(mensagem,titulo, codigo);
+
+                mensagemPermissao.onAttach((Context)this);
+                mensagemPermissao.show(getSupportFragmentManager(), "primeiravez");
+
+            }
+            else{
+               return false;
+            }
+
         }
         return false;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+
+        switch (requestCode) {
+            case 1212:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permissão concedida", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "Permissão não concedida", Toast.LENGTH_LONG).show();
+
+                    String mensagem = "O aplicativo só pode fazer ligações diretamente com sua permissão. Se você marcou não, o número será apenas discado.";
+                    String titulo = "Precisamos de sua permissão";
+                    UIEducacionalPermissao mensagemPermissao = new UIEducacionalPermissao(mensagem, titulo, 2);
+                    mensagemPermissao.onAttach((Context) this);
+                    mensagemPermissao.show(getSupportFragmentManager(), "segundavez");
+                }
+                break;
+        }
+    }
+
+
+    @Override
+    public void onDialogPositiveClick(int codigo) {
+        if (codigo ==1) {
+            String[] permissoes = {Manifest.permission.CALL_PHONE};
+            requestPermissions(permissoes, 1212);
+        }
     }
 }
