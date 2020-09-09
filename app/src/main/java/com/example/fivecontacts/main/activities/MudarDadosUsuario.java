@@ -1,14 +1,16 @@
 package com.example.fivecontacts.main.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -19,10 +21,12 @@ import android.widget.Toast;
 import com.example.fivecontacts.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MudarDadosUsuario extends AppCompatActivity {
+public class MudarDadosUsuario extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     boolean primeiraVezUser=true;
     boolean primeiraVezSenha=true;
+    boolean primeiraVezNome=true;
+    boolean primeiraVezEmail=true;
     EditText edUser;
     EditText edPass;
     EditText edNome;
@@ -38,14 +42,22 @@ public class MudarDadosUsuario extends AppCompatActivity {
         setContentView(R.layout.activity_alterar_usuario);
 
         btModificar=findViewById(R.id.btCriar);
-        bnv=findViewById(R.id.bnv);
+        bnv = findViewById(R.id.bnv);
         bnv.setSelectedItemId(R.id.anvPerfil);
+        bnv.setOnNavigationItemSelectedListener(this);
 
         edUser=findViewById(R.id.edT_Login2);
         edPass=findViewById(R.id.edt_Pass2);
         edNome=findViewById(R.id.edtNome);
-        edEmail=findViewById(R.id.edEmail);
+        edEmail=findViewById(R.id.edtEmail);
         swLogado=findViewById(R.id.swLogado);
+
+        SharedPreferences temUser = getSharedPreferences("usuarioPadrao",Activity.MODE_PRIVATE);
+        edUser.setText(temUser.getString("login",""));
+        edNome.setText(temUser.getString("nome",""));
+        edPass.setText(temUser.getString("senha",""));
+        edPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        edEmail.setText(temUser.getString("email",""));
 
 
         //Evento de limpar Componente
@@ -70,6 +82,30 @@ public class MudarDadosUsuario extends AppCompatActivity {
                     edPass.setText("");
                     edPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD
                     );
+                }
+                return false;
+            }
+        });
+
+        edNome.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (primeiraVezNome){
+                    primeiraVezNome=false;
+                    edNome.setText("");
+
+                }
+                return false;
+            }
+        });
+
+        edEmail.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (primeiraVezEmail){
+                    primeiraVezEmail=false;
+                    edEmail.setText("");
+
                 }
                 return false;
             }
@@ -121,5 +157,23 @@ public class MudarDadosUsuario extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.anvPerfil){
+            Intent intent = new Intent(this, MudarDadosUsuario.class);
+            startActivity(intent);
+        }
+        if(item.getItemId()==R.id.anvMudar){
+            Intent intent = new Intent(this, Pick_Contacts.class);
+            startActivity(intent);
+        }
+        if(item.getItemId()==R.id.anvLigar){
+
+            Intent intent = new Intent(this, ListaDeContatos_ListView.class);
+            startActivity(intent);
+        }
+        return true;
     }
 }

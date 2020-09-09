@@ -34,6 +34,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (montarObjetoSemUsuarioLogar()){
+            User user = montarObjetoUser();
+
+            Intent intent = new Intent (this, ListaDeContatos_ListView.class);
+            intent.putExtra("usuario", user);
+            startActivity(intent);
+            finish();
+        }
+
         btLogar=findViewById(R.id.btLogar);
         btNovo=findViewById(R.id.btNovo);
         edUser=findViewById(R.id.edT_Login);
@@ -118,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this,NovoUsuario.class);
+                Log.v("teste", "CHEGOU AQUI");
                 startActivity(intent);
             }
         });
@@ -125,9 +136,21 @@ public class MainActivity extends AppCompatActivity {
    }
 
     private User montarObjetoUser() {
-        User user=new User("Windson","","");
+        SharedPreferences temUser = getSharedPreferences("usuarioPadrao",Activity.MODE_PRIVATE);
+        String loginSalvo = temUser.getString("login","");
+        String nomeSalvo = temUser.getString("nome","");
+        String senhaSalva = temUser.getString("senha","");
+        String emailSalvo = temUser.getString("email","");
+
+
+        User user=new User(nomeSalvo,loginSalvo,senhaSalva, emailSalvo);
         return user;
     }
 
+    private boolean montarObjetoSemUsuarioLogar(){
+        SharedPreferences temUser = getSharedPreferences("usuarioPadrao",Activity.MODE_PRIVATE);
+        return temUser.getBoolean("manterLogado",false);
+
+    }
 
 }

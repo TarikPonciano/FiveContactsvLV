@@ -28,7 +28,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:ems="10"
-            android:inputType="textPersonName"
             android:text="Bem vindo"
             android:textAlignment="center"
             android:textColor="#FF5722"
