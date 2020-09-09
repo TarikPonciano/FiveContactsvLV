@@ -2,10 +2,14 @@ package com.example.fivecontacts.main.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -117,11 +121,17 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements Botto
                     Toast.makeText(ListaDeContatos_ListView.this, "Contato Selecionado: " + nomesSP[i], Toast.LENGTH_LONG).show();
 
                    // numeroLigar = contatos.get(i).getNumero();
-
                     Uri uri = Uri.parse (contatos.get(i).getNumero());
                     Intent intent;
 
-                    intent = new Intent(Intent.ACTION_DIAL, uri);
+                   if (checarPermissaoPhone()){
+                       intent = new Intent(Intent.ACTION_CALL, uri);
+                   }
+                   else{ intent = new Intent(Intent.ACTION_DIAL, uri);}
+
+
+                    // intent = new Intent(Intent.ACTION_CALL, uri);
+
                     startActivity(intent);
 
                 }
@@ -142,13 +152,23 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements Botto
         }
         if(item.getItemId()==R.id.anvLigar){
 
-            //checarPermissaoPhone();
+
 
             Intent intent = new Intent(this, ListaDeContatos_ListView.class);
 
-           // intent = new Intent(Intent.ACTION_CALL, uri);
+
             startActivity(intent);
         }
         return true;
+    }
+
+    protected boolean checarPermissaoPhone() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED){
+            return true;
+        }else{
+            String[] permissoes = {Manifest.permission.CALL_PHONE};
+            ActivityCompat.requestPermissions(this,permissoes,1212);
+        }
+        return false;
     }
 }
