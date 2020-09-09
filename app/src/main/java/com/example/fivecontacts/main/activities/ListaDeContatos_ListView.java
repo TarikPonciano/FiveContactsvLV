@@ -44,6 +44,7 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements Botto
         setContentView(R.layout.activity_lista_de_contatos);
 
         bnv = findViewById(R.id.bnv);
+        bnv.setSelectedItemId(R.id.anvLigar);
         bnv.setOnNavigationItemSelectedListener(this);
 
         lv= findViewById(R.id.listView1);
