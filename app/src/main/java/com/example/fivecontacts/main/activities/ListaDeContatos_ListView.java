@@ -129,6 +129,9 @@ public class ListaDeContatos_ListView extends AppCompatActivity implements UIEdu
                    if (checarPermissaoPhone()){
                        Intent intent = new Intent(Intent.ACTION_CALL, uri);
                        startActivity(intent);
+                   } else{
+                       Intent intent = new Intent(Intent.ACTION_DIAL, uri);
+                       startActivity(intent);
                    }
 
 

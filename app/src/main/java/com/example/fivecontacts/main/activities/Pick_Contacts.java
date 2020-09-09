@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.example.fivecontacts.R;
@@ -32,7 +34,8 @@ import java.nio.charset.StandardCharsets;
 
 public class Pick_Contacts extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-    TextView tv;
+
+    ListView contactList;
     EditText edContato;
     Button btSalvar;
     User user;
@@ -41,7 +44,8 @@ public class Pick_Contacts extends AppCompatActivity implements BottomNavigation
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pick_contacts);
-        tv = findViewById(R.id.MessageIntent);
+
+        contactList = findViewById(R.id.contactList);
 
         bnv = findViewById(R.id.bnv);
         bnv.setSelectedItemId(R.id.anvMudar);
@@ -49,50 +53,25 @@ public class Pick_Contacts extends AppCompatActivity implements BottomNavigation
 
         edContato = findViewById(R.id.edtContato);
 
-        //Dados da Intent Anterior
-        Intent quemChamou=this.getIntent();
-        if (quemChamou!=null) {
-            Bundle params = quemChamou.getExtras();
-            if (params!=null) {
-                //Recuperando o Usuario
-                user = (User) params.getSerializable("usuario");
-                if (user != null) {
-                    tv.setText(user.getNome());
 
-                }
-            }
-        }
 
     }
+
     public void onClickBuscar(View v){
-    if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED){
-        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 3333);
-        return;
-    }
-    else{
-        ContentResolver cr =getContentResolver();
-
-        String consulta = ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
-        String [] argumentosConsulta = {"%"+edContato.getText()+"%"};
-
-        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-
-        while (cursor.moveToNext()){
-            int indiceNome = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
-            String contatoNome = cursor.getString(indiceNome);
-
-            int indiceContactID = cursor.getColumnIndexOrThrow((ContactsContract.Contacts._ID));
-            String contactID = cursor.getString(indiceContactID);
-
-            String consultaPhone = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactID;
-            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-
-
-            while (phones.moveToNext()){
-                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED){
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},3333);
+            return;
         }
-    }
+    Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
+    startManagingCursor(cursor);
+
+    String[] from = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.CommonDataKinds.Phone._ID};
+
+    int[] to = {android.R.id.text1,android.R.id.text2};
+
+    SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2,cursor,from,to);
+    contactList.setAdapter(simpleCursorAdapter);
+    contactList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     public void cliquedoSalvar (View v) throws IOException {
